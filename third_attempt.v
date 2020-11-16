@@ -54,7 +54,27 @@ module non_restoring_divider(input wire [15:0] Q, M, output wire [15:0] quo, r);
     csa_16bit csa_16bit_inst15(M, r14, Q[0], quo[1], quo[0],r);
     //assign q = quo;
 endmodule
+module ripple_carry_adder_rem_correc(input [3:0] in0,output [3:0] out,output cout);
+	wire c1, c2, c3;
+    wire an0,an1,an2,an3;
+    wire a,b,c,d;
+     reg [15:0] Q, M;
+    wire [15:0] quo, rem;
+    reg [3:0] in0;
+	reg [3:0] in1;
+	wire [3:0] out;
+	wire cout;
+    and2 and_1(1,io[3],an0);
+    and2 and_2(0,io[3],an1);
+    and2 and_3(1,io[3],an2);
+    and2 and_4(0,io[3],an3);
 
+    full_adder fa0(in0[0], an0, 0, out[0],c1);
+    full_adder fa1(in0[1], an1, c1, out[1], c2);
+    full_adder fa2(in0[2], an2, c2, out[2], c3);
+    full_adder fa3(in0[3], an3, c3, out[3], cout);
+
+endmodule
 module testbench;
     reg [15:0] Q, M;
     wire [15:0] quo, rem;
@@ -63,6 +83,12 @@ module testbench;
         $dumpfile("dump.vcd");
         $dumpvars(0,testbench); //0,1
     end
+    ripple_carry_adder_rem_correc rca(.in0(in0), .in1(in1), .out(out), .cout(cout));
+    initial begin
+        $dumpfile("ripple-carry_adder_rem_correc.vcd");
+        $dumpvars(0, testbench);
+		$monitor($time, ": %b + %b = %b, %b", in0, in1, out, cout);
+	end
 
     initial begin
     $monitor (Q,M,quo,rem);
